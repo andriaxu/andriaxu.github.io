@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Andria Xu — CS 180</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F4EA;
+    --paper-deep:#EDEADD;
+    --ink:#20302A;
+    --ink-soft:#4E5F57;
+    --sky:#B7DEE6;
+    --sky-deep:#5E9FB0;
+    --sage:#C8DBBB;
+    --sage-deep:#7C9E68;
+    --line: rgba(32,48,42,.14);
+    --radius: 14px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:1120px; margin:0 auto; padding:0 32px;}
+  a{color:inherit; text-decoration:none;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--sage-deep);
+  }
+
+  /* background atmosphere */
+  .atmosphere{
+    position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none;
+  }
+  .atmosphere .blob{
+    position:absolute; border-radius:50%; filter:blur(70px); opacity:.55;
+  }
+  .atmosphere .blob.b1{ width:520px; height:520px; background:var(--sky); top:-160px; left:-120px; }
+  .atmosphere .blob.b2{ width:460px; height:460px; background:var(--sage); bottom:-180px; right:-140px; }
+
+  /* hero */
+  .hero{
+    min-height:88vh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding-top:40px; padding-bottom:40px;
+    position:relative;
+  }
+  .hero-eyebrow{ margin-bottom:22px; }
+  .hero-name{
+    position:relative;
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size:clamp(3.2rem, 9vw, 7rem);
+    line-height:.98;
+    letter-spacing:-.01em;
+  }
+  .hero-name .layer{
+    display:block;
+  }
+  .hero-name .layer-low{
+    color:var(--sage-deep);
+    filter:blur(13px);
+    opacity:.9;
+    position:absolute; inset:0;
+    transition:filter .12s linear, opacity .12s linear;
+  }
+  .hero-name .layer-high{
+    color:var(--ink);
+    position:relative;
+    filter:blur(0px);
+    opacity:.18;
+    transition:opacity .12s linear;
+  }
+  /* section shell */
+  .section{ padding:96px 0; border-top:1px solid var(--line); }
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:52px; gap:24px; flex-wrap:wrap;
+  }
+  .section-title{
+    font-family:'Fraunces', serif; font-weight:500;
+    font-size:clamp(1.9rem, 3.4vw, 2.6rem);
+  }
+  .section-title em{ font-style:italic; color:var(--sky-deep); }
+  .section-desc{
+    max-width:340px; font-size:.92rem; color:var(--ink-soft); line-height:1.55;
+  }
+
+  /* work grid */
+  .work-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:28px;
+  }
+  .proj-card{
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    opacity:0; transform:translateY(18px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .proj-card.in{ opacity:1; transform:translateY(0); }
+  .proj-frame{
+    position:relative; aspect-ratio:4/3; overflow:hidden;
+  }
+  .proj-num{
+    position:absolute; top:14px; left:14px; z-index:2;
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem;
+    color:var(--paper); background:rgba(32,48,42,.55);
+    padding:3px 8px; border-radius:20px; letter-spacing:.04em;
+  }
+  .proj-placeholder{
+    position:absolute; top:14px; right:14px; z-index:2;
+    font-family:'IBM Plex Mono', monospace; font-size:.6rem;
+    letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft); background:rgba(246,244,234,.75);
+    border:1px dashed var(--ink-soft); border-radius:20px;
+    padding:3px 8px; opacity:.7;
+  }
+  .proj-image{ position:absolute; inset:0; }
+  .proj-body{ padding:22px 22px 26px; }
+  .proj-meta{
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem;
+    letter-spacing:.08em; text-transform:uppercase;
+    color:var(--sage-deep); margin-bottom:10px;
+  }
+  .proj-body h3{
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.28rem;
+    margin-bottom:10px; line-height:1.25;
+  }
+  .proj-body p{ font-size:.9rem; color:var(--ink-soft); line-height:1.55; margin-bottom:16px; }
+  .proj-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .proj-tags span{
+    font-family:'IBM Plex Mono', monospace; font-size:.66rem;
+    padding:4px 9px; border-radius:20px;
+    background:rgba(183,222,230,.4); color:var(--ink);
+    border:1px solid var(--line);
+  }
+
+  @media (max-width:760px){
+    .work-grid{ grid-template-columns:1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .layer-low{ display:none; }
+    .layer-high{ opacity:1 !important; }
+    .scroll-cue span.line{ animation:none; }
+    .proj-card{ transition:none; opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="atmosphere"><div class="blob b1"></div><div class="blob b2"></div></div>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="hero-eyebrow">CS 180 — Computational Photography &amp; Computer Vision · UC Berkeley</p>
+    <h1 class="hero-name" id="heroName">
+      <span class="layer layer-low" aria-hidden="true">Andria Xu</span>
+      <span class="layer layer-high">Andria Xu</span>
+    </h1>
+  </div>
+</header>
+
+<main>
+  <section class="section" id="work">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">Project <em>log</em></h2>
+        <p class="section-desc">Six problem sets, one semester. Each frame is numbered the way the course numbers them — swap in your own images and write-ups below.</p>
+      </div>
+      <div class="work-grid">
+
+        <article class="proj-card">
+          <div class="proj-frame">
+            <span class="proj-num">Frame 01</span>
+            <span class="proj-placeholder">add image</span>
+            <div class="proj-image" style="background:linear-gradient(135deg, var(--sky) 0%, var(--paper-deep) 55%, var(--sage) 100%);"></div>
+          </div>
+          <div class="proj-body">
+            <p class="proj-meta">Image Alignment</p>
+            <h3>Colorizing the Prokudin-Gorskii Collection</h3>
+            <p>Aligning three exposures of a glass-plate negative into a single color photograph, using normalized cross-correlation over an image pyramid to search efficiently at full resolution.</p>
+            <div class="proj-tags"><span>Python</span><span>NumPy</span><span>Image Pyramids</span></div>
+          </div>
+        </article>
+
+        <article class="proj-card">
+          <div class="proj-frame">
+            <span class="proj-num">Frame 02</span>
+            <span class="proj-placeholder">add image</span>
+            <div class="proj-image" style="background:linear-gradient(135deg, var(--sage) 0%, var(--paper-deep) 55%, var(--sky) 100%);"></div>
+          </div>
+          <div class="proj-body">
+            <p class="proj-meta">Frequencies</p>
+            <h3>Fun with Filters &amp; Hybrid Images</h3>
+            <p>Sharpening via the unsharp mask, and building hybrid images that read as one picture up close and another from across the room — the same trick the hero above borrows.</p>
+            <div class="proj-tags"><span>Convolution</span><span>Gaussian / Laplacian</span></div>
+          </div>
+        </article>
+
+        <article class="proj-card">
+          <div class="proj-frame">
+            <span class="proj-num">Frame 03</span>
+            <span class="proj-placeholder">add image</span>
+            <div class="proj-image" style="background:linear-gradient(150deg, var(--paper-deep) 0%, var(--sky) 60%, var(--sage) 100%);"></div>
+          </div>
+          <div class="proj-body">
+            <p class="proj-meta">Warping</p>
+            <h3>Face Morphing &amp; the Mean Face</h3>
+            <p>Delaunay triangulation and affine warps to morph between two faces, and to compute the average face of a population — one control point set at a time.</p>
+            <div class="proj-tags"><span>Delaunay</span><span>Affine Warp</span></div>
+          </div>
+        </article>
+
+        <article class="proj-card">
+          <div class="proj-frame">
+            <span class="proj-num">Frame 04</span>
+            <span class="proj-placeholder">add image</span>
+            <div class="proj-image" style="background:linear-gradient(150deg, var(--sky) 0%, var(--sage) 100%);"></div>
+          </div>
+          <div class="proj-body">
+            <p class="proj-meta">Mosaicing</p>
+            <h3>Auto-Stitching Photo Panoramas</h3>
+            <p>Recovering homographies between overlapping photos to warp and blend them into a single seamless mosaic, with corner detection replacing hand-picked points.</p>
+            <div class="proj-tags"><span>Homography</span><span>Harris Corners</span></div>
+          </div>
+        </article>
+
+        <article class="proj-card">
+          <div class="proj-frame">
+            <span class="proj-num">Frame 05</span>
+            <span class="proj-placeholder">add image</span>
+            <div class="proj-image" style="background:linear-gradient(135deg, var(--paper-deep) 0%, var(--sage) 45%, var(--sky) 100%);"></div>
+          </div>
+          <div class="proj-body">
+            <p class="proj-meta">Generative</p>
+            <h3>Painting with Diffusion Models</h3>
+            <p>Sampling, inpainting, and iterative denoising with a pretrained diffusion model — using the forward and reverse process as a sketching tool.</p>
+            <div class="proj-tags"><span>Diffusion</span><span>PyTorch</span></div>
+          </div>
+        </article>
+
+        <article class="proj-card">
+          <div class="proj-frame">
+            <span class="proj-num">Frame 06</span>
+            <span class="proj-placeholder">add image</span>
+            <div class="proj-image" style="background:linear-gradient(160deg, var(--sky) 0%, var(--paper-deep) 50%, var(--sage) 100%);"></div>
+          </div>
+          <div class="proj-body">
+            <p class="proj-meta">Final Project</p>
+            <h3>Your capstone, here</h3>
+            <p>Room for whatever you build for the open-ended final project — swap in the real title, images, and a short write-up once it's done.</p>
+            <div class="proj-tags"><span>Open-ended</span></div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // hybrid-image hero: cursor proximity controls the blur/opacity blend
+  (function(){
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var hero = document.getElementById('heroName');
+    var low = hero.querySelector('.layer-low');
+    var high = hero.querySelector('.layer-high');
+    if(reduce) return;
+
+    var hasFinePointer = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+    function applyBlend(t){ // t: 0 (far/blurry) .. 1 (close/sharp)
+      t = Math.max(0, Math.min(1, t));
+      low.style.opacity = (0.92 - t*0.72).toFixed(2);
+      low.style.filter = 'blur(' + (6 + (1-t)*14).toFixed(1) + 'px)';
+      high.style.opacity = (0.12 + t*0.88).toFixed(2);
+    }
+
+    if(hasFinePointer){
+      document.addEventListener('mousemove', function(e){
+        var rect = hero.getBoundingClientRect();
+        var cx = rect.left + rect.width/2;
+        var cy = rect.top + rect.height/2;
+        var dx = e.clientX - cx, dy = e.clientY - cy;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        var maxDist = Math.max(window.innerWidth, window.innerHeight) * 0.55;
+        var t = 1 - Math.min(dist / maxDist, 1);
+        applyBlend(t);
+      });
+      applyBlend(0.15);
+    } else {
+      // ambient auto-oscillation for touch devices
+      var start = null;
+      function frame(ts){
+        if(!start) start = ts;
+        var elapsed = (ts - start) / 1000;
+        var t = (Math.sin(elapsed * 0.6) + 1) / 2;
+        applyBlend(t);
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+  })();
+
+  // reveal project cards on scroll
+  (function(){
+    var cards = document.querySelectorAll('.proj-card');
+    if(!('IntersectionObserver' in window)){
+      cards.forEach(function(c){ c.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    cards.forEach(function(c){ io.observe(c); });
+  })();
+</script>
+
+</body>
+</html>
