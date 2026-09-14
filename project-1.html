@@ -97,7 +97,7 @@
       <div class="pwrite">
         <h2>Overview</h2>
         <p>Each digitized glass plate negative is a single tall grayscale image, stacked as blue on top, green in the middle, red on the bottom. To rebuild the color photo, the green and red thirds each need to be shifted independently until they line up with the blue reference.</p>
-        <p>To begin, I performed a translation search. I tried every shift within the window <code>(-30, 30)</code> on both the x and y axis, score each one against the reference channel (in this case, blue), and keep the shift with the best score. I experimented with both <em>normalized cross-correlation</em> (NCC) and L2 as the scoring metric, but the images shown on this page are all using the NCC score.</p>
+        <p>To begin, I performed a simple translation search. I tried every shift within the window <code>(-30, 30)</code> on both the x and y axes, score each one against the reference channel (in this case, blue), and keep the shift with the best score. I experimented with both <em>normalized cross-correlation</em> (NCC) and L2 as the scoring metric (minimizing L2 vs maximizing NCC), but the images shown on this page are all using the NCC score. This is because I found that NCC is more robust to things like brightness changes.</p>
       </div>
     </section>
 
@@ -128,6 +128,8 @@
         <p class="pnote">Step 2</p>
         <h2>Single-Scale with Cropping for NCC Score Calculation</h2>
         <p>I use the same exhaustive single-scale search, but now calculating NCC on a cropped interior region instead of the full image. As you can see, the cathedral and monestary have very different shifts than they did previously, showing that the borders of the images severely affected their NCC score.</p>
+      </div>
+      <section class="pgallery">
         <figure>
           <img src="images/project1/single_scale/cathedral.jpg" alt="Cathedral, aligned with border cropping">
           <figcaption><span class="pname">cathedral.jpg</span><span class="pshift">G: (2, 5) &middot; R: (3, 12)</span></figcaption>
