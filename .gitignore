@@ -1,0 +1,8 @@
+.DS_Store
+
+# raw project1 dataset (course-provided, too large for git)
+project1/CS180_fa2026_proj1_data/
+project1/CS180_fa2026_proj1_data.zip
+
+# full-resolution pyramid outputs (site only needs the resized jpgs in images/project1/)
+project1/pyramid_aligned_imgs/

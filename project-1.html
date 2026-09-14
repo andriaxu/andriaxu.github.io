@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colorizing the Prokudin-Gorskii Plates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --paper:#F6F4EA; --paper-deep:#EDEADD; --ink:#20302A; --ink-soft:#4E5F57;
+    --sky:#B7DEE6; --sky-deep:#5E9FB0; --sage:#C8DBBB; --sage-deep:#7C9E68;
+    --line: rgba(32,48,42,.14); --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{ background:var(--paper); color:var(--ink); font-family:'Inter', sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap{max-width:1000px; margin:0 auto; padding:0 32px;}
+  a{color:inherit; text-decoration:none;}
+  .atmosphere{ position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+  .atmosphere .blob{ position:absolute; border-radius:50%; filter:blur(70px); opacity:.5; }
+  .atmosphere .b1{ width:480px; height:480px; background:var(--sky); top:-160px; left:-140px; }
+  .atmosphere .b2{ width:420px; height:420px; background:var(--sage); bottom:-160px; right:-140px; }
+
+  .back{
+    display:inline-flex; align-items:center; gap:8px; margin:36px 0 8px;
+    font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--ink-soft);
+  }
+  .back:hover{ color:var(--ink); }
+
+  .phero{ padding:20px 0 48px; border-bottom:1px solid var(--line); }
+  .peyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--sage-deep); margin-bottom:14px;
+  }
+  .ptitle{ font-family:'Fraunces', serif; font-weight:500; font-size:clamp(2rem,5vw,3rem); line-height:1.08; max-width:760px; }
+  .psummary{ margin-top:16px; max-width:680px; font-size:1.02rem; color:var(--ink-soft); line-height:1.6; }
+  .ptags{ display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+  .ptags span{
+    font-family:'IBM Plex Mono', monospace; font-size:.7rem; padding:5px 10px; border-radius:20px;
+    background:rgba(183,222,230,.4); border:1px solid var(--line);
+  }
+
+  /* each pgroup bundles a write-up with the images that belong to it */
+  .pcontent{ padding:48px 0 80px; }
+  .pgroup{ margin-bottom:56px; }
+  .pgroup:last-child{ margin-bottom:0; }
+
+  .pwrite{ max-width:760px; margin-bottom:20px; }
+  .pwrite h2{ font-family:'Fraunces', serif; font-weight:500; font-size:1.4rem; margin-bottom:10px; }
+  .pwrite p{ font-size:.98rem; line-height:1.7; color:var(--ink-soft); margin-bottom:12px; }
+  .pwrite p:last-child{ margin-bottom:0; }
+  .pwrite p em{ color:var(--sage-deep); font-style:normal; }
+  .pwrite code{ font-family:'IBM Plex Mono', monospace; font-size:.88em; background:var(--paper-deep); padding:1px 6px; border-radius:5px; }
+
+  .pgallery{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .pgallery.g3{ grid-template-columns:repeat(3, 1fr); }
+  .pgallery.g4{ grid-template-columns:repeat(4, 1fr); }
+  .pgallery figure{ border-radius:var(--radius); overflow:hidden; border:1px solid var(--line); background:var(--paper-deep); }
+  .pgallery img{ display:block; width:100%; height:auto; aspect-ratio:7/6; object-fit:cover; }
+  .pgallery figcaption{
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--ink-soft);
+    padding:10px 14px;
+  }
+  .pgallery figcaption .pname{ display:block; color:var(--ink); }
+  .pgallery figcaption .pshift{ display:block; margin-top:3px; font-size:.9em; }
+
+  .pnote{
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; letter-spacing:.03em;
+    color:var(--sage-deep); text-transform:uppercase; margin-bottom:12px;
+  }
+
+  @media (max-width:760px){ .pgallery.g3, .pgallery.g4{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:640px){ .pgallery{ grid-template-columns:1fr; } }
+
+</style>
+</head>
+<body>
+
+<div class="atmosphere"><div class="blob b1"></div><div class="blob b2"></div></div>
+
+<div class="wrap">
+  <a class="back" href="index.html">&larr; back to project log</a>
+
+  <header class="phero">
+    <p class="peyebrow">Frame 01 &middot; Digital Colorization</p>
+    <h1 class="ptitle">Images of the Russian Empire: Colorizing the Prokudin-Gorskii Photo Collection</h1>
+    <p class="psummary">In the early 1900s, cameras couldn't just take colored photos. Thus, Sergei Prokudin-Gorskii photographed the Russian Empire by taking three black-and-white exposures of every scene through red, green, and blue filters. In this project, I form colored photos using his black-and-white filtered photos. To do this, I reassemble those glass plates by finding the right pixel offset and stack the three channels back on top of each other.</p>
+    <div class="ptags"><span>Python</span><span>NumPy</span><span>Image Pyramids</span><span>Normalized Cross-Correlation</span></div>
+  </header>
+
+  <div class="pcontent">
+
+    <section class="pgroup">
+      <div class="pwrite">
+        <h2>Overview</h2>
+        <p>Each digitized glass plate negative is a single tall grayscale image, stacked as blue on top, green in the middle, red on the bottom. To rebuild the color photo, the green and red thirds each need to be shifted independently until they line up with the blue reference.</p>
+        <p>To begin, I performed a translation search. I tried every shift within the window <code>(-30, 30)</code> on both the x and y axis, score each one against the reference channel (in this case, blue), and keep the shift with the best score. I experimented with both <em>normalized cross-correlation</em> (NCC) and L2 as the scoring metric, but the images shown on this page are all using the NCC score.</p>
+      </div>
+    </section>
+
+    <section class="pgroup">
+      <div class="pwrite">
+        <p class="pnote">Step 1</p>
+        <h2>Single-Scale Alignment</h2>
+        <p>While Tobolsk aligns fairly well, the others do not align well at all. Another observation I had was that after alignment, Tolbolsk barely has any uncropped edges from the filters, whereas the other two images do. This suggests that maybe the edges are messing up the NCC score, motivating me to ignore the edges of each filter when calculating the NCC score. I try taking 10% of the borders off when calculating the NCC score. </p>
+      </div>
+      <section class="pgallery">
+        <figure>
+          <img src="images/project1/no_crop/cathedral.jpg" alt="Cathedral, aligned without border cropping, showing color fringing">
+          <figcaption><span class="pname">cathedral.jpg</span><span class="pshift">G: (-1, 1) &middot; R: (-1, 7)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/no_crop/monastery.jpg" alt="Monastery, aligned without border cropping, showing heavy ghosting">
+          <figcaption><span class="pname">monastery.jpg</span><span class="pshift">G: (0, -6) &middot; R: (1, 9)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/no_crop/tobolsk.jpg" alt="Tobolsk, aligned without border cropping, mostly clean">
+          <figcaption><span class="pname">tobolsk.jpg</span><span class="pshift">G: (2, 3) &middot; R: (3, 6)</span></figcaption>
+        </figure>
+      </section>
+    </section>
+
+    <section class="pgroup">
+      <div class="pwrite">
+        <p class="pnote">Step 2</p>
+        <h2>Single-Scale with Cropping for NCC Score Calculation</h2>
+        <p>I use the same exhaustive single-scale search, but now calculating NCC on a cropped interior region instead of the full image. As you can see, the cathedral and monestary have very different shifts than they did previously, showing that the borders of the images severely affected their NCC score.</p>
+        <figure>
+          <img src="images/project1/single_scale/cathedral.jpg" alt="Cathedral, aligned with border cropping">
+          <figcaption><span class="pname">cathedral.jpg</span><span class="pshift">G: (2, 5) &middot; R: (3, 12)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/single_scale/monastery.jpg" alt="Monastery, aligned with border cropping">
+          <figcaption><span class="pname">monastery.jpg</span><span class="pshift">G: (2, -3) &middot; R: (2, 3)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/single_scale/tobolsk.jpg" alt="Tobolsk, aligned with border cropping">
+          <figcaption><span class="pname">tobolsk.jpg</span><span class="pshift">G: (3, 3) &middot; R: (3, 6)</span></figcaption>
+        </figure>
+      </section>
+    </section>
+
+    <section class="pgroup">
+      <div class="pwrite">
+        <p class="pnote">Step 3</p>
+        <h2>Pyramid-Aligned</h2>
+        <p>Because the exhaustive window search takes O(n^2) time, it isn't efficient to do on large images and just increase the window size. Instead, we do a pyramid alignment. This is done by recursively scaling down the image to a smaller image and aligning the smaller image, then scaling back up and refining the alignment using an exhaustive search over a very small window (based on how much you scaled down).</p>
+        <p>As you can see, all of the images are aligned except for Emir. I looked at the raw R, G, B filtered images for Emir and found that  reason it is difficult to align Emir is because Emir's attire has a high pixel value for blue, but barely has any red. This makes it difficult to align, as NCC alignment relies on each glass plate negative to have similar pixels.</p>
+      </div>
+      <section class="pgallery g4">
+        <figure>
+          <img src="images/project1/pyramid/cathedral.jpg" alt="Cathedral, pyramid-aligned">
+          <figcaption><span class="pname">cathedral.jpg</span><span class="pshift">G: (2, 5) &middot; R: (3, 12)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/church.jpg" alt="Church, pyramid-aligned">
+          <figcaption><span class="pname">church.tif</span><span class="pshift">G: (4, 25) &middot; R: (-4, 58)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/emir.jpg" alt="Emir of Bukhara, pyramid-aligned, still showing some ghosting">
+          <figcaption><span class="pname">emir.tif &mdash; toughest case, still some ghosting</span><span class="pshift">G: (24, 49) &middot; R: (-205, 141)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/harvesters.jpg" alt="Harvesters, pyramid-aligned">
+          <figcaption><span class="pname">harvesters.tif</span><span class="pshift">G: (17, 60) &middot; R: (13, 124)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/icon.jpg" alt="Icon, pyramid-aligned">
+          <figcaption><span class="pname">icon.tif</span><span class="pshift">G: (17, 41) &middot; R: (23, 89)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/ilemselga.jpg" alt="Ilemselga, pyramid-aligned">
+          <figcaption><span class="pname">ilemselga.tif</span><span class="pshift">G: (7, 40) &middot; R: (11, 130)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/melons.jpg" alt="Melons, pyramid-aligned">
+          <figcaption><span class="pname">melons.tif</span><span class="pshift">G: (11, 82) &middot; R: (13, 178)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/monastery.jpg" alt="Monastery, pyramid-aligned">
+          <figcaption><span class="pname">monastery.jpg</span><span class="pshift">G: (2, -3) &middot; R: (2, 3)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/religous_painting.jpg" alt="Religious painting, pyramid-aligned">
+          <figcaption><span class="pname">religous_painting.tif</span><span class="pshift">G: (3, 28) &middot; R: (7, 68)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/self_portrait.jpg" alt="Self portrait, pyramid-aligned">
+          <figcaption><span class="pname">self_portrait.tif</span><span class="pshift">G: (29, 79) &middot; R: (37, 176)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/siren.jpg" alt="Siren, pyramid-aligned">
+          <figcaption><span class="pname">siren.tif</span><span class="pshift">G: (-6, 49) &middot; R: (-25, 96)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/three_generations.jpg" alt="Three generations, pyramid-aligned">
+          <figcaption><span class="pname">three_generations.tif</span><span class="pshift">G: (14, 53) &middot; R: (11, 112)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/tobolsk.jpg" alt="Tobolsk, pyramid-aligned">
+          <figcaption><span class="pname">tobolsk.jpg</span><span class="pshift">G: (3, 3) &middot; R: (3, 6)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/pyramid/wharf.jpg" alt="Wharf, pyramid-aligned">
+          <figcaption><span class="pname">wharf.tif</span><span class="pshift">G: (-7, 15) &middot; R: (-16, 83)</span></figcaption>
+        </figure>
+      </section>
+    </section>
+
+    <section class="pgroup">
+      <div class="pwrite">
+        <p class="pnote">Step 4</p>
+        <h2>Custom Images</h2>
+        <p>I chose 3 of my own images from the website to run the pyramid-aligned algorithm on myself :D</p>
+      </div>
+      <section class="pgallery">
+        <figure>
+          <img src="images/project1/custom/city.jpg" alt="City overlook">
+          <figcaption><span class="pname">city.jpg</span><span class="pshift">G: (1, 6) &middot; R: (0, 12)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/custom/top_view.jpg" alt="River valley top view">
+          <figcaption><span class="pname">top_view.jpg</span><span class="pshift">G: (1, 8) &middot; R: (1, 12)</span></figcaption>
+        </figure>
+        <figure>
+          <img src="images/project1/custom/trees.jpg" alt="Forest path">
+          <figcaption><span class="pname">trees.jpg</span><span class="pshift">G: (-1, -6) &middot; R: (2, -6)</span></figcaption>
+        </figure>
+      </section>
+    </section>
+
+  </div>
+</div>
+
+</body>
+</html>
